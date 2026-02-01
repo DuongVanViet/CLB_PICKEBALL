@@ -4,7 +4,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY . /src
 
-# Publish the Backend project explicitly
+# Publish the Backend project
 WORKDIR /src/Backend
 RUN dotnet publish PcmBackend.csproj -c Release -o /app/publish
 
