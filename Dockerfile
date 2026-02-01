@@ -1,25 +1,19 @@
-ARG DOTNET_VERSION=8.0
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
-# ===== BUILD STAGE =====
-FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} AS build
+# Copy entire repository into the build stage
 WORKDIR /src
+COPY . /src
 
-# Copy csproj and restore
-COPY Backend/*.csproj Backend/
-RUN dotnet restore "Backend/PcmBackend.csproj"
-
-# Copy source and publish
-COPY . .
+# Publish the Backend project explicitly
 WORKDIR /src/Backend
-RUN dotnet publish -c Release -o /app/publish --no-restore
+RUN dotnet publish PcmBackend.csproj -c Release -o /app/publish
 
-# ===== RUNTIME STAGE =====
-FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_VERSION} AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 
+# Copy published app from build stage
 COPY --from=build /app/publish .
 
-# Render uses port 8080
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 

@@ -32,7 +32,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         // Production: use PostgreSQL (Render)
         options.UseNpgsql(connString, npgOptions =>
         {
-            npgOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelaySeconds: 10, deltaSeconds: 1);
+            npgOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(10), errorCodesToAdd: null);
         });
     }
 });
