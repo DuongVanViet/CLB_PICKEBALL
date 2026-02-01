@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: pcm-backend
+    env: docker
+    branch: main
+    repo: https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME
+    dockerfilePath: Backend/Dockerfile
+    plan: starter
+    buildCommand: null
+    startCommand: null
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: production
+      - key: DOTNET_RUNNING_IN_CONTAINER
+        value: true
+      # Add your production secrets in the Render dashboard instead of here
+      # - key: ConnectionStrings__DefaultConnection
+      #   value: <your-connection-string>
