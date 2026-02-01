@@ -1,0 +1,16 @@
+.git
+.gitignore
+.github
+node_modules
+.dart_tool
+build/
+publish/
+bin/
+obj/
+*.db
+*.db-shm
+*.db-wal
+*.pdf
+.metadata
+.vscode
+.idea
