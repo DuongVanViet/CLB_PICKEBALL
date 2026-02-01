@@ -2,9 +2,12 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiService {
-  // For Android Emulator: use 10.0.2.2 instead of localhost
-  // For iOS Simulator/Chrome: use 127.0.0.1 or localhost
-  static const String baseUrl = 'http://localhost:5000/api';
+  // Default to the Render-hosted backend, but allow overriding at build time
+  // Override locally with: `--dart-define=API_BASE_URL=http://10.0.2.2:5000/api`
+  static const String baseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'https://clb-pickeball.onrender.com/api',
+  );
 
   late Dio _dio;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
