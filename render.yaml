@@ -5,6 +5,9 @@ services:
     branch: main
     dockerfilePath: Dockerfile
     plan: free
+    buildFilter:
+      paths:
+        - '/**'
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
