@@ -3,7 +3,7 @@ services:
     name: pcm-backend
     env: docker
     branch: main
-    dockerfilePath: Backend/Dockerfile
+    dockerfilePath: Dockerfile
     plan: free
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
