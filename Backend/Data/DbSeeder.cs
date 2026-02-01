@@ -50,7 +50,7 @@ namespace PcmBackend.Data
             // Admin
             await CreateUserWithMemberAsync(context, userManager, 
                 "admin@pcm.com", "Admin@123", "Admin", 
-                "Mod by DoTuyen", MemberTier.Diamond, 8.0, 10000000, new[] { "Admin" });
+                "Van Viet", MemberTier.Diamond, 8.0, 10000000, new[] { "Admin" });
 
             // Treasurer
             await CreateUserWithMemberAsync(context, userManager, 
