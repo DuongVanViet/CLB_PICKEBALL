@@ -3,7 +3,7 @@ services:
     name: pcm-backend
     env: docker
     branch: main
-    dockerfilePath: Dockerfile
+    dockerfilePath: Backend/.Dockerfile
     plan: free
     buildFilter:
       paths:
