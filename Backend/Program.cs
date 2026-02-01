@@ -10,12 +10,32 @@ using PcmBackend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Force backend to listen on HTTP port 5000
-builder.WebHost.UseUrls("http://localhost:5000", "http://0.0.0.0:5000");
+// Listen on PORT from environment (Render sets this to 8080), default to 5000 for local dev
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 // ==================== Database Configuration ====================
+// Use PostgreSQL for production (on Render), SQLite for local development
+var connString = builder.Configuration.GetConnectionString("DefaultConnection");
+var isDevelopment = builder.Environment.IsDevelopment();
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    if (isDevelopment || string.IsNullOrEmpty(connString) || !connString.Contains("Host="))
+    {
+        // Local development: use SQLite
+        var sqliteConn = connString ?? "Data Source=PcmBackend.db";
+        options.UseSqlite(sqliteConn);
+    }
+    else
+    {
+        // Production: use PostgreSQL (Render)
+        options.UseNpgsql(connString, npgOptions =>
+        {
+            npgOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelaySeconds: 10, deltaSeconds: 1);
+        });
+    }
+});
 
 // ==================== Identity Configuration ====================
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
@@ -30,9 +50,16 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 .AddDefaultTokenProviders();
 
 // ==================== JWT Configuration ====================
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "YourDefaultSecretKey123456789012345678901234";
-var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "PcmBackend";
-var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "PcmMobileApp";
+// IMPORTANT: Override JWT secrets in production via environment variables
+var jwtKey = builder.Configuration["Jwt:Key"] ?? 
+    Environment.GetEnvironmentVariable("JWT_KEY") ?? 
+    "YourDefaultSecretKey123456789012345678901234";
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? 
+    Environment.GetEnvironmentVariable("JWT_ISSUER") ?? 
+    "PcmBackend";
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? 
+    Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? 
+    "PcmMobileApp";
 
 builder.Services.AddAuthentication(options =>
 {
@@ -80,7 +107,13 @@ builder.Services.AddCors(options =>
 
     options.AddPolicy("AllowMobileApp", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "https://localhost:3000")
+        var allowedOrigins = new[]
+        {
+            "http://localhost:3000",
+            "https://localhost:3000",
+            "https://clb-pickeball.onrender.com" // Render frontend URL
+        };
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();
